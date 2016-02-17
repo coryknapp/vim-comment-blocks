@@ -9,7 +9,13 @@ nnoremap <silent> <Plug>(commentsblock-gslash) :<C-u>call AlignWithLastComment(e
 nmap g/ <Plug>(commentsblock-gslash)
 
 function! AreWeInACommentBlock()
-	
+	let index = match( getline('.'), "//" )
+	if( index == -1 )
+		return 0
+	if( index < col('.' ) )
+		return 1
+	endif
+	return 0
 endfunction
 
 function! AlignWithLastComment(...)
