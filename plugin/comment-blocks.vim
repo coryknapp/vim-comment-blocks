@@ -4,6 +4,7 @@
 let g:comment_blocks = 1
 
 let s:c_syn = "//"
+let s:tab_width = 4
 let s:c_lineLimit = 80
 noremap <silent> <Plug>(commentsblock-gslash) :<C-u>call AlignWithLastComment()<CR>a
 nmap g/ <Plug>(commentsblock-gslash)
@@ -93,6 +94,7 @@ cb = vim.current.buffer
 last_line = cb[row-2]
 this_line = cb[row-1]
 c_syn = vim.eval( "s:c_syn" )
+tab_width = int(vim.eval( "s:tab_width" ))
 
 #first thing, if we're not at the end of a line, go there.
 #vim.command( "call cursor( ["+str(row)+","+str(len(this_line))+"] )" )
@@ -101,7 +103,7 @@ c_syn = vim.eval( "s:c_syn" )
 comment_col = last_line.find( c_syn )
 if comment_col == -1: #no comment above.
 	# Add // to the end and we're done.
-	if this_line.find( c_syn ) >= 0: #unless we're already in a comment
+	if this_line.find( c_syn ) == -1: #unless we're already in a comment
 		this_line = this_line + " " + c_syn
 elif comment_col < len( this_line ):
 	#the comment block above is to the left of the termination of the last line
@@ -113,7 +115,11 @@ elif comment_col < len( this_line ):
 	print( "later!" )
 else:
 	#add spaces until we align this block with the last
-	this_line += ' '*(comment_col - len( this_line ))
+	tab_count = this_line.count( '\t' )
+	#we have to compensate for the poor misguided people who use tabs instead of
+	#space.
+	padding = comment_col - len( this_line ) - ( tab_count * ( tab_width - 1 ) )
+	this_line += ' '*padding
 	this_line += c_syn
 
 vim.command( "call setline(" + str(row) +",\""+this_line+"\")" )#make sure we escape any "'s
