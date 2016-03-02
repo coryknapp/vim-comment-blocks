@@ -27,7 +27,7 @@ function! CursorMoved()
 		" If we are, we'll need to move the word down
 			"If the next row has an aligned comment block...
 				"we're going to need to move the last word from this line onto
-				"the next, and then check that line for overflo::w. Then repeat
+				"the next, and then check that line for overflow. Then repeat
 				"on this line, recursively
 		"else "else (If the next row is not an aligned comment block)...
 				"just go ahead and append the line to a NEW comment block on the
@@ -49,10 +49,12 @@ function! MoveWordIntoNextRowCommentBlock( rowNumber )
 	else
 		call AlignWithLastComment()
 		let next_line = getline( a:rowNumber+1 )
-		padding = ' '*
-		call setline( a:rowNumber+1, next_line.trans_word )
+		let padding = WhiteSpace( match( this_line, s:c_syn ) )
+		call setline( a:rowNumber+1, next_line.padding."// ".trans_word )
 		call setline( a:rowNumber, 
 					\this_line[0:len(this_line) - len(trans_word) - 1] )
+		" put cursor at the end of the new line
+		call cursor( a:rowNumber + 1, 999 )
 	endif
 	echo this_line_update
 endfunction
@@ -137,7 +139,8 @@ function! WhiteSpace( length )
 	let i = 0
 	let whitespace = ""
 	while i < a:length 
-		whitespace += " "
+		let whitespace = whitespace." "
+		let i += 1
 	endwhile
 	return whitespace
 endfunction
