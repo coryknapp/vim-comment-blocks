@@ -13,20 +13,21 @@ echo "loading"
 
 augroup checkForInCommentBlockAndPastBoundryGroup
 	autocmd!
-	"autocmd CursorMoved <buffer> call CursorMoved()
+	autocmd CursorMoved <buffer> call CursorMoved()
 	autocmd CursorMovedI <buffer> call CursorMoved()
 augroup END
 
 function! CursorMoved()
+	echo "CursorMoved ".reltimestr(reltime())
 	if( AreWeInACommentBlock() )
+		echo "In a comment block"	
 		" test to see if we're past our line limit.
 		if( len( getline('.') ) > s:c_lineLimit )
-			echo "oooops"
 			call MoveWordIntoNextRowCommentBlock( line('.') )
 		" If we are, we'll need to move the word down
 			"If the next row has an aligned comment block...
 				"we're going to need to move the last word from this line onto
-				"the next, and then check that line for overflow. Then repeat
+				"the next, and then check that line for overflo::w. Then repeat
 				"on this line, recursively
 		"else "else (If the next row is not an aligned comment block)...
 				"just go ahead and append the line to a NEW comment block on the
@@ -48,9 +49,10 @@ function! MoveWordIntoNextRowCommentBlock( rowNumber )
 	else
 		call AlignWithLastComment()
 		let next_line = getline( a:rowNumber+1 )
-		echo next_line
-		echo trans_word
+		padding = ' '*
 		call setline( a:rowNumber+1, next_line.trans_word )
+		call setline( a:rowNumber, 
+					\this_line[0:len(this_line) - len(trans_word) - 1] )
 	endif
 	echo this_line_update
 endfunction
@@ -130,3 +132,13 @@ vim.command( "call cursor( [ line('.') ,"+str(len(this_line))+"] )" )
 debug_out.close()
 EOF
 endfunction
+
+function! WhiteSpace( length )
+	let i = 0
+	let whitespace = ""
+	while i < a:length 
+		whitespace += " "
+	endwhile
+	return whitespace
+endfunction
+
