@@ -15,8 +15,9 @@ have found it to work (Thanks @zQueal).
 
 ## Usage
 
-In normal mode, `g/` will add a ` //`to the end of the current line, padding
+* In normal mode, `g/` will add a ` //`to the end of the current line, padding
 spaces as necessary to align with the comment block above.
+* Comments will automatically wrap at 80 characters.
 
 ## Contributing
 
