@@ -10,8 +10,7 @@ be able to handle.
 
 I assume you need vim with python.
 
-I've tested this on Mac OS X and MacVim, others have tested it on windows and
-have found it to work (Thanks @zQueal).
+I've tested this on Mac OS X and MacVim, and nothing else.
 
 ## Usage
 
