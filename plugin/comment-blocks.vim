@@ -48,20 +48,40 @@ function! MoveWordIntoNextRowCommentBlock( rowNumber )
 		echo trans_word
 		" we need to take the trans word and put it between the comment start,
 		" and the first word of the next line.
+		" find position
+		let next_line = getline( a:rowNumber+1 )
+		" split the line over the "//"
+	  	let next_line_split	= split( next_line, s:c_syn )
+		call setline( a:rowNumber + 1,
+					\next_line_split[0].s:c_syn." ".trans_word.next_line_split[1])
+		" remove the transword from the current line
+		let this_line = this_line[0:len(this_line) - len(trans_word) - 1]
+		call setline( a:rowNumber, this_line )
+		" adjust the cursor position, if we're at the end of our row
+		echo col('.').'/'.len( this_line )
+		if( col( '.' ) == (len( this_line ) + 1) )
+			echo "did it"
+			call cursor( a:rowNumber + 1, 
+						\len(next_line_split[0]) +
+						\len(s:c_syn) + 2 + 
+						\len(trans_word) ) " add the constant two. (one for the
+										   " space after the // and one to
+										   " move the cursor to AFTER the
+										   " transword
+		endif
 	else
 		" call AlignWithLastComment() I'm not sure why this is here.  I'm
 		" leaving it in incase something breaks.
 		let next_line = getline( a:rowNumber+1 )
-		let padding = WhiteSpace( match( this_line, s:c_syn ) )
+		let padding = WhiteSpace( match( this_line, s:c_syn ) - len(next_line) )
 		call setline( a:rowNumber+1, next_line.padding."// ".trans_word )
-		call setline( a:rowNumber, 
+		call setline( a:rowNumber,
 					\this_line[0:len(this_line) - len(trans_word) - 1] )
 		" put cursor at the end of the new line if we were at the end before
-		if col( '.' ) == len( this_line )
+		if col( '.' ) == len( this_line ) - 1
 			call cursor( a:rowNumber + 1, 999 )
 		endif
 	endif
-	echo this_line_update
 endfunction
 
 function! IsTheCommentBlockContinueInTheNextRow( rowNumber )
